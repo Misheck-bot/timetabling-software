@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Rooms{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 fw-bold text-primary">
+                <i class="bi bi-building me-2"></i>Manage Examination Rooms
+            </h1>
+            <p class="text-muted">Add and manage rooms available for examinations</p>
+        </div>
+    </div>
+
+    <!-- Add Room Form -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-plus-circle me-2"></i>Add New Room
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Room Name/Number</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                            <small class="text-muted">e.g., Lab 101, Auditorium A, Room 205</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="capacity" class="form-label">Capacity</label>
+                            <input type="number" class="form-control" id="capacity" name="capacity" min="1" required>
+                            <small class="text-muted">Maximum number of students</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="building" class="form-label">Building</label>
+                            <input type="text" class="form-control" id="building" name="building" placeholder="Enter building name" required>
+                            <small class="text-muted">Building or wing where room is located</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Add Room
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Room Information -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Room Guidelines
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h6>Room Requirements:</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Adequate seating capacity</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Good lighting and ventilation</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Accessible location</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i>Proper security measures</li>
+                    </ul>
+                    
+                    <h6>Capacity Considerations:</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-info-circle me-2"></i>Standard classrooms: 30-50 students</li>
+                        <li><i class="bi bi-info-circle me-2"></i>Computer labs: 20-30 students</li>
+                        <li><i class="bi bi-info-circle me-2"></i>Auditoriums: 100+ students</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Existing Rooms -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul me-2"></i>Available Rooms ({{ rooms|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if rooms %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Room Name</th>
+                                    <th>Capacity</th>
+                                    <th>Building</th>
+                                    <th>Type</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for room in rooms %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ room.name }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ room.capacity }} students</span>
+                                    </td>
+                                    <td>{{ room.building }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ room.room_type }}</span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-building text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted mt-3">No rooms added yet</h5>
+                        <p class="text-muted">Add your first examination room using the form above.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

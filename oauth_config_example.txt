@@ -1,0 +1,39 @@
+# OAuth Configuration Example
+# Copy this to a .env file and fill in your actual OAuth credentials
+
+# Flask Configuration
+SECRET_KEY=your-super-secret-key-here
+FLASK_ENV=development
+FLASK_DEBUG=1
+
+# Database Configuration
+DATABASE_URL=sqlite:///timetabling.db
+
+# OAuth Configuration
+# Google OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# Facebook OAuth
+FACEBOOK_CLIENT_ID=your-facebook-client-id
+FACEBOOK_CLIENT_SECRET=your-facebook-client-secret
+
+# GitHub OAuth
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+
+# Microsoft OAuth
+MICROSOFT_CLIENT_ID=your-microsoft-client-id
+MICROSOFT_CLIENT_SECRET=your-microsoft-client-secret
+
+# OAuth Redirect URI (update this for production)
+OAUTH_REDIRECT_URI=http://localhost:5000
+
+# Instructions:
+# 1. Create a .env file in your project root
+# 2. Copy the above variables and fill in your actual OAuth credentials
+# 3. Get OAuth credentials from:
+#    - Google: https://console.developers.google.com/
+#    - Facebook: https://developers.facebook.com/
+#    - GitHub: https://github.com/settings/developers
+#    - Microsoft: https://portal.azure.com/

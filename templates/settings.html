@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 fw-bold text-primary">
+                <i class="bi bi-gear me-2"></i>User Settings
+            </h1>
+            <p class="text-muted">Configure your account preferences and settings</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Account Settings -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person me-2"></i>Account Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="username" value="{{ user.username }}" readonly>
+                                    <small class="text-muted">Username cannot be changed</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email" value="{{ user.email }}" readonly>
+                                    <small class="text-muted">Email cannot be changed</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="full_name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="full_name" value="{{ user.full_name or '' }}" placeholder="Enter your full name">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" disabled>
+                            <i class="bi bi-save me-2"></i>Save Changes
+                        </button>
+                        <small class="text-muted ms-2">Settings update functionality coming soon</small>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Research Preferences -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightbulb me-2"></i>Research Preferences
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Default Algorithm</label>
+                                <select class="form-select" disabled>
+                                    <option value="">Select algorithm...</option>
+                                    <option value="hybrid">Hybrid (GA + SA)</option>
+                                    <option value="genetic">Genetic Algorithm</option>
+                                    <option value="simulated_annealing">Simulated Annealing</option>
+                                </select>
+                                <small class="text-muted">Default optimization algorithm</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Default Population Size</label>
+                                <input type="number" class="form-control" placeholder="Enter population size" disabled>
+                                <small class="text-muted">Default GA population size</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Note:</strong> Research preferences will be configurable once the optimization algorithms are fully implemented.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('profile') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-person me-2"></i>View Profile
+                        </a>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-success">
+                            <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+                        </a>
+                        <a href="{{ url_for('home') }}" class="btn btn-outline-info">
+                            <i class="bi bi-house me-2"></i>Go to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Information -->
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>System Info
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>User Role:</span>
+                        <span class="badge bg-primary">{{ user.role.title() }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Account Status:</span>
+                        <span class="badge bg-success">Active</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Research Access:</span>
+                        <span class="badge bg-info">Granted</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Last Login:</span>
+                        <span class="text-muted">{{ user.last_login.strftime('%B %d, %Y') if user.last_login else 'Not available' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

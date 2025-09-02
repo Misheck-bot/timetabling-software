@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Courses{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 fw-bold text-primary">
+                <i class="bi bi-book me-2"></i>Course Management
+            </h1>
+            <p class="text-muted">Add, edit, and manage courses for the IT department</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Add Course Form -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-plus-circle me-2"></i>Add New Course
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Course Name</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   placeholder="e.g., Introduction to Programming" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="code" class="form-label">Course Code</label>
+                            <input type="text" class="form-control" id="code" name="code" 
+                                   placeholder="e.g., CS101" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="students" class="form-label">Number of Students</label>
+                            <input type="number" class="form-control" id="students" name="students" 
+                                   placeholder="45" min="1" max="200" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="duration" class="form-label">Exam Duration (minutes)</label>
+                            <select class="form-select" id="duration" name="duration" required>
+                                <option value="">Select duration...</option>
+                                <option value="60">60 minutes</option>
+                                <option value="90">90 minutes</option>
+                                <option value="120">120 minutes (2 hours)</option>
+                                <option value="150">150 minutes (2.5 hours)</option>
+                                <option value="180">180 minutes (3 hours)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="department" class="form-label">Department</label>
+                            <select class="form-select" id="department" name="department" required>
+                                <option value="">Select department...</option>
+                                <option value="IT">Information Technology</option>
+                                <option value="CS">Computer Science</option>
+                                <option value="SE">Software Engineering</option>
+                                <option value="CE">Computer Engineering</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Add Course
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Courses List -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul me-2"></i>All Courses ({{ courses|length }})
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-light btn-sm" onclick="exportCourses()">
+                            <i class="bi bi-download me-1"></i>Export
+                        </button>
+                        <button class="btn btn-outline-light btn-sm" onclick="printCourses()">
+                            <i class="bi bi-printer me-1"></i>Print
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if courses %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Name</th>
+                                    <th>Students</th>
+                                    <th>Duration</th>
+                                    <th>Department</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for course in courses %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">{{ course.code }}</span>
+                                    </td>
+                                    <td>
+                                        <strong>{{ course.name }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ course.students }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning">{{ course.duration }} min</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ course.department }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn btn-outline-primary" 
+                                                    onclick="editCourse({{ course.id }})" 
+                                                    title="Edit Course">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-info" 
+                                                    onclick="viewCourse({{ course.id }})" 
+                                                    title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger" 
+                                                    onclick="deleteCourse({{ course.id }}, '{{ course.name }}')" 
+                                                    title="Delete Course">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-book text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted mt-3">No courses found</h5>
+                        <p class="text-muted">Start by adding your first course using the form on the left.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Course Statistics -->
+            {% if courses %}
+            <div class="row g-3 mt-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <i class="bi bi-people text-primary mb-2" style="font-size: 2rem;"></i>
+                            <h4 class="text-primary">{{ courses|sum(attribute='students') }}</h4>
+                            <p class="text-muted mb-0">Total Students</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <i class="bi bi-clock text-success mb-2" style="font-size: 2rem;"></i>
+                            <h4 class="text-success">{{ courses|sum(attribute='duration') }}</h4>
+                            <p class="text-muted mb-0">Total Hours</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <i class="bi bi-building text-warning mb-2" style="font-size: 2rem;"></i>
+                            <h4 class="text-warning">{{ courses|groupby('department')|length }}</h4>
+                            <p class="text-muted mb-0">Departments</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <i class="bi bi-calendar-check text-info mb-2" style="font-size: 2rem;"></i>
+                            <h4 class="text-info">{{ courses|length }}</h4>
+                            <p class="text-muted mb-0">Total Courses</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Edit Course Modal -->
+<div class="modal fade" id="editCourseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Course</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCourseForm">
+                    <input type="hidden" id="editCourseId" name="id">
+                    <div class="mb-3">
+                        <label for="editCourseName" class="form-label">Course Name</label>
+                        <input type="text" class="form-control" id="editCourseName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCourseCode" class="form-label">Course Code</label>
+                        <input type="text" class="form-control" id="editCourseCode" name="code" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCourseStudents" class="form-label">Number of Students</label>
+                        <input type="number" class="form-control" id="editCourseStudents" name="students" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCourseDuration" class="form-label">Exam Duration</label>
+                        <select class="form-select" id="editCourseDuration" name="duration" required>
+                            <option value="60">60 minutes</option>
+                            <option value="90">90 minutes</option>
+                            <option value="120">120 minutes</option>
+                            <option value="150">150 minutes</option>
+                            <option value="180">180 minutes</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveCourseEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function editCourse(courseId) {
+    // In a real application, you would fetch course data from the server
+    // For now, we'll show the modal with empty fields for user input
+    document.getElementById('editCourseId').value = courseId;
+    document.getElementById('editCourseName').value = '';
+    document.getElementById('editCourseCode').value = '';
+    document.getElementById('editCourseStudents').value = '';
+    document.getElementById('editCourseDuration').value = '';
+    
+    const modal = new bootstrap.Modal(document.getElementById('editCourseModal'));
+    modal.show();
+}
+
+function saveCourseEdit() {
+    // In a real application, you would send the data to the server
+    const modal = bootstrap.Modal.getInstance(document.getElementById('editCourseModal'));
+    modal.hide();
+    
+    // Show success message
+    if (window.TimetablingSystem) {
+        window.TimetablingSystem.showNotification('Course updated successfully!', 'success');
+    }
+    
+    // Reload the page to show updated data
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function viewCourse(courseId) {
+    // In a real application, you would navigate to a course detail page
+    alert(`Viewing course with ID: ${courseId}`);
+}
+
+function deleteCourse(courseId, courseName) {
+    if (confirm(`Are you sure you want to delete "${courseName}"?`)) {
+        // In a real application, you would send a delete request to the server
+        if (window.TimetablingSystem) {
+            window.TimetablingSystem.showNotification('Course deleted successfully!', 'success');
+        }
+        
+        // Reload the page to show updated data
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    }
+}
+
+function exportCourses() {
+    // In a real application, you would generate and download an export file
+    if (window.TimetablingSystem) {
+        window.TimetablingSystem.showNotification('Exporting courses...', 'info');
+    }
+}
+
+function printCourses() {
+    // In a real application, you would open a print-friendly version
+    window.print();
+}
+</script>
+{% endblock %}

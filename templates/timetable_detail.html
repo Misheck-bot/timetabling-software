@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}{{ timetable.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h2 fw-bold text-primary">
+                        <i class="bi bi-calendar-week me-2"></i>{{ timetable.name }}
+                    </h1>
+                    <p class="text-muted">Generated using {{ timetable.algorithm_used }} algorithm</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('view_timetables') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Timetables
+                    </a>
+                    <button class="btn btn-outline-primary" onclick="exportTimetable({{ timetable.id }})">
+                        <i class="bi bi-download me-2"></i>Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timetable Statistics -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <i class="bi bi-calendar-check text-primary mb-2" style="font-size: 2rem;"></i>
+                    <h4 class="text-primary">{{ entries|length }}</h4>
+                    <p class="text-muted mb-0">Total Exams</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <i class="bi bi-graph-up text-success mb-2" style="font-size: 2rem;"></i>
+                    <h4 class="text-success">{{ "%.2f"|format(timetable.fitness_score) }}</h4>
+                    <p class="text-muted mb-0">Fitness Score</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <i class="bi bi-exclamation-triangle text-warning mb-2" style="font-size: 2rem;"></i>
+                    <h4 class="text-warning">{{ timetable.constraint_violations }}</h4>
+                    <p class="text-muted mb-0">Constraint Violations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <i class="bi bi-clock text-info mb-2" style="font-size: 2rem;"></i>
+                                                    <h4 class="text-info">Generated</h4>
+                    <p class="text-muted mb-0">Generated Date</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timetable Schedule -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-table me-2"></i>Examination Schedule
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if entries %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Time</th>
+                                    <th>Course</th>
+                                    <th>Room</th>
+                                    <th>Capacity</th>
+                                    <th>Students</th>
+                                    <th>Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in entries %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">{{ entry.time_slot.day }}</span>
+                                    </td>
+                                    <td>
+                                        <strong>{{ entry.time_slot.start_time.strftime('%H:%M') }} - {{ entry.time_slot.end_time.strftime('%H:%M') }}</strong>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ entry.course.name }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ entry.course.code }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ entry.room.name }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ entry.room.building }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ entry.room.capacity }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning">{{ entry.course.students }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ entry.course.duration }} min</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="text-muted mt-3">No exams scheduled</h5>
+                        <p class="text-muted">This timetable appears to be empty.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Algorithm Information -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear-wide-connected me-2"></i>Algorithm Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Algorithm Used:</h6>
+                            <p class="mb-3">
+                                <span class="badge bg-primary">{{ timetable.algorithm_used.title() }}</span>
+                            </p>
+                            
+                            <h6>Generation Date:</h6>
+                            <p class="mb-3">Recently generated</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Performance Metrics:</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>Fitness Score:</strong> {{ "%.2f"|format(timetable.fitness_score) }}</li>
+                                <li><strong>Constraint Violations:</strong> {{ timetable.constraint_violations }}</li>
+                                <li><strong>Total Exams:</strong> {{ entries|length }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function exportTimetable(timetableId) {
+    // In a real application, you would generate and download an export file
+    alert('Export functionality will be implemented in the next version.');
+}
+</script>
+{% endblock %}

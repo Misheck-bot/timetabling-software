@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center text-white py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-bold mb-4">
+                    <i class="bi bi-calendar-check text-warning me-3"></i>
+                    Examination Timetabling System
+                </h1>
+                <p class="lead mb-4">
+                    Advanced optimization algorithms for creating efficient examination schedules at 
+                    <strong>Zambia University College of Technology</strong> IT Department
+                </p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{{ url_for('login') }}" class="btn btn-warning btn-lg px-4">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Get Started
+                    </a>
+                    <a href="#features" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-info-circle me-2"></i>Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold text-primary mb-3">Research Project Overview</h2>
+                <p class="lead text-muted">
+                    This project implements and compares three optimization approaches for solving the examination timetabling problem:
+                    Genetic Algorithms, Simulated Annealing, and a novel Hybrid approach combining both methods.
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="bi bi-dna text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="card-title">Genetic Algorithm</h4>
+                        <p class="card-text text-muted">
+                            Evolutionary approach using selection, crossover, and mutation operators to explore 
+                            the solution space and find optimal examination schedules.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="bi bi-thermometer-half text-success" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="card-title">Simulated Annealing</h4>
+                        <p class="card-text text-muted">
+                            Probabilistic optimization that escapes local optima by accepting worse solutions 
+                            with decreasing probability as the temperature parameter cools.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="bi bi-lightning-charge text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="card-title">Hybrid Optimization</h4>
+                        <p class="card-text text-muted">
+                            Novel approach combining GA for broad exploration and SA for local refinement, 
+                            achieving superior results through intelligent algorithm integration.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Problem Statement Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="display-6 fw-bold text-primary mb-4">Research Problem</h2>
+                <p class="lead mb-4">
+                    Examination timetabling is a well-known NP-hard constraint satisfaction problem that 
+                    educational institutions face during academic planning.
+                </p>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <strong>Student Conflicts:</strong> No student can take multiple exams simultaneously
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <strong>Room Constraints:</strong> Capacity limits and facility requirements
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <strong>Time Constraints:</strong> Exam duration, breaks, and faculty availability
+                    </li>
+                    <li class="mb-3">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <strong>Preference Balancing:</strong> Multiple conflicting objectives to optimize
+                    </li>
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow">
+                    <div class="card-body p-4">
+                        <h5 class="card-title text-center mb-3">
+                            <i class="bi bi-graph-up text-primary me-2"></i>
+                            Problem Characteristics
+                        </h5>
+                        <div class="row text-center">
+                            <div class="col-6 mb-3">
+                                <div class="border rounded p-3">
+                                    <h3 class="text-primary fw-bold">NP-Hard</h3>
+                                    <small class="text-muted">Computational Complexity</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="border rounded p-3">
+                                    <h3 class="text-success fw-bold">Multi-Objective</h3>
+                                    <small class="text-muted">Optimization Type</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="border rounded p-3">
+                                    <h3 class="text-warning fw-bold">Constraint-Based</h3>
+                                    <small class="text-muted">Problem Nature</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="border rounded p-3">
+                                    <h3 class="text-info fw-bold">Academic</h3>
+                                    <small class="text-muted">Application Domain</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Research Contributions Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Research Contributions</h2>
+                <p class="lead">
+                    This project contributes to the field of educational timetabling through:
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-3 text-center">
+                <i class="bi bi-lightbulb mb-3" style="font-size: 2.5rem;"></i>
+                <h5>Novel Hybrid Algorithm</h5>
+                <p class="small">Combines GA and SA for superior optimization results</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <i class="bi bi-graph-up-arrow mb-3" style="font-size: 2.5rem;"></i>
+                <h5>Performance Analysis</h5>
+                <p class="small">Comparative study of three optimization approaches</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <i class="bi bi-code-square mb-3" style="font-size: 2.5rem;"></i>
+                <h5>Practical Implementation</h5>
+                <p class="small">Fully operational web application for research use</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <i class="bi bi-journal-text mb-3" style="font-size: 2.5rem;"></i>
+                <h5>Research Documentation</h5>
+                <p class="small">Comprehensive analysis and findings</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Technology Stack Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-6 fw-bold text-primary mb-3">Implementation Technologies</h2>
+                <p class="lead text-muted">
+                    Built with modern technologies for reliability, scalability, and performance.
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-2 col-4 text-center">
+                <div class="tech-item p-3">
+                    <i class="bi bi-filetype-html text-danger mb-2" style="font-size: 2rem;"></i>
+                    <h6>HTML5</h6>
+                </div>
+            </div>
+            <div class="col-md-2 col-4 text-center">
+                <div class="tech-item p-3">
+                    <i class="bi bi-filetype-css text-primary mb-2" style="font-size: 2rem;"></i>
+                    <h6>CSS3</h6>
+                </div>
+            </div>
+            <div class="col-md-2 col-4 text-center">
+                <div class="tech-item p-3">
+                    <i class="bi bi-filetype-js text-warning mb-2" style="font-size: 2rem;"></i>
+                    <h6>JavaScript</h6>
+                </div>
+            </div>
+            <div class="col-md-2 col-4 text-center">
+                <div class="tech-item p-3">
+                    <i class="bi bi-bootstrap text-purple mb-2" style="font-size: 2rem;"></i>
+                    <h6>Bootstrap 5</h6>
+                </div>
+            </div>
+            <div class="col-md-2 col-4 text-center">
+                <div class="tech-item p-3">
+                    <i class="bi bi-filetype-py text-info mb-2" style="font-size: 2rem;"></i>
+                    <h6>Python</h6>
+                </div>
+            </div>
+            <div class="col-md-2 col-4 text-center">
+                <div class="tech-item p-3">
+                    <i class="bi bi-database text-success mb-2" style="font-size: 2rem;"></i>
+                    <h6>SQLite</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="py-5 bg-warning">
+    <div class="container text-center">
+        <h2 class="display-6 fw-bold mb-4">Ready to Explore the Research?</h2>
+        <p class="lead mb-4">
+            Experience the implementation of advanced optimization algorithms for examination timetabling.
+            This research project demonstrates practical applications of metaheuristic optimization.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-4">
+                <i class="bi bi-rocket-takeoff me-2"></i>Access System
+            </a>
+            <a href="#features" class="btn btn-outline-dark btn-lg px-4">
+                <i class="bi bi-arrow-down me-2"></i>Learn More
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hero-section {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+}
+
+.feature-icon {
+    transition: transform 0.3s ease;
+}
+
+.card:hover .feature-icon {
+    transform: scale(1.1);
+}
+
+.tech-item {
+    transition: transform 0.3s ease;
+}
+
+.tech-item:hover {
+    transform: translateY(-5px);
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+</style>
+{% endblock %}

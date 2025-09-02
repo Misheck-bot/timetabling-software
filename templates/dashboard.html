@@ -1,0 +1,503 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2 fw-bold text-primary">
+                <i class="bi bi-speedometer2 me-2"></i>Research Dashboard
+            </h1>
+            <p class="text-muted">Examination Timetabling Research Project - Algorithm Implementation and Testing</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-book text-primary" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h4 class="mb-1 fw-bold">{{ courses|length }}</h4>
+                            <p class="text-muted mb-0">Courses Available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-building text-success" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h4 class="mb-1 fw-bold">{{ rooms|length }}</h4>
+                            <p class="text-muted mb-0">Examination Rooms</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-clock text-warning" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h4 class="mb-1 fw-bold">{{ time_slots|length }}</h4>
+                            <p class="text-muted mb-0">Time Slots</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                                <i class="bi bi-gear text-info" style="font-size: 1.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h4 class="mb-1 fw-bold">{{ constraints|length }}</h4>
+                            <p class="text-muted mb-0">Constraints Defined</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Row -->
+    <div class="row g-4">
+        <!-- Algorithm Configuration Panel -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear-wide-connected me-2"></i>Algorithm Configuration
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="optimizationForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="algorithm" class="form-label">Optimization Algorithm</label>
+                                <select class="form-select" id="algorithm" name="algorithm" required>
+                                    <option value="hybrid">Hybrid (GA + SA) - Research Focus</option>
+                                    <option value="genetic">Genetic Algorithm</option>
+                                    <option value="simulated_annealing">Simulated Annealing</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="population_size" class="form-label">Population Size (GA)</label>
+                                <input type="number" class="form-control" id="population_size" name="population_size" 
+                                       placeholder="Enter population size" min="10" max="200" required>
+                                <small class="text-muted">Number of solutions in population</small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="generations" class="form-label">Generations/Iterations</label>
+                                <input type="number" class="form-control" id="generations" name="generations" 
+                                       placeholder="Enter number of generations" min="20" max="500" required>
+                                <small class="text-muted">Maximum iterations for convergence</small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="mutation_rate" class="form-label">Mutation Rate (GA)</label>
+                                <input type="number" class="form-control" id="mutation_rate" name="mutation_rate" 
+                                       placeholder="Enter mutation rate" min="0.01" max="0.5" step="0.01" required>
+                                <small class="text-muted">Probability of solution modification</small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="temperature" class="form-label">Initial Temperature (SA)</label>
+                                <input type="number" class="form-control" id="temperature" name="temperature" 
+                                       placeholder="Enter initial temperature" min="100" max="10000" required>
+                                <small class="text-muted">Starting temperature for annealing</small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="cooling_rate" class="form-label">Cooling Rate (SA)</label>
+                                <input type="number" class="form-control" id="cooling_rate" name="cooling_rate" 
+                                       placeholder="Enter cooling rate" min="0.8" max="0.99" step="0.01" required>
+                                <small class="text-muted">Temperature reduction factor</small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="button" class="btn btn-outline-secondary me-md-2" id="resetBtn">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Reset Parameters
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="optimizeBtn">
+                                <i class="bi bi-play-circle me-1"></i>Run Algorithm
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Research Results Display -->
+            <div class="card border-0 shadow-sm mt-4" id="resultsCard" style="display: none;">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>Algorithm Results
+                    </h5>
+                    <div class="d-flex align-items-center">
+                        <span class="me-2">Status:</span>
+                        <span id="algoStatus" class="badge bg-secondary">Ready</span>
+                        <small id="lastOptimization" class="text-light ms-3">—</small>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Algorithm Used:</strong> <span id="algoUsed">-</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Execution Time:</strong> <span id="execTime">-</span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Best Fitness Score:</strong> <span id="bestFitness" class="text-success">-</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Constraint Violations:</strong> <span id="constraintViolations">-</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <canvas id="fitnessChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Research Information Sidebar -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning me-2"></i>Research Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('manage_courses') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Add Course
+                        </a>
+                        <a href="{{ url_for('manage_rooms') }}" class="btn btn-outline-success">
+                            <i class="bi bi-building-add me-2"></i>Add Room
+                        </a>
+                        <a href="{{ url_for('manage_constraints') }}" class="btn btn-outline-warning">
+                            <i class="bi bi-gear-wide-connected me-2"></i>Define Constraints
+                        </a>
+                        <a href="{{ url_for('view_timetables') }}" class="btn btn-outline-info">
+                            <i class="bi bi-calendar-week me-2"></i>View Results
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Research Status -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Research Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Database Status</span>
+                        <span class="badge bg-success">Active</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Research Status</span>
+                        <span class="text-muted">Ready for Testing</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('optimizationForm');
+    const resultsCard = document.getElementById('resultsCard');
+    const algoStatus = document.getElementById('algoStatus');
+    const lastOptimization = document.getElementById('lastOptimization');
+    
+    let fitnessChart = null;
+    
+    // Reset form to empty
+    document.getElementById('resetBtn').addEventListener('click', function() {
+        document.getElementById('population_size').value = '';
+        document.getElementById('generations').value = '';
+        document.getElementById('mutation_rate').value = '';
+        document.getElementById('temperature').value = '';
+        document.getElementById('cooling_rate').value = '';
+        
+        // Hide results
+        resultsCard.style.display = 'none';
+        
+        // Reset status
+        algoStatus.textContent = 'Ready';
+        algoStatus.className = 'badge bg-secondary';
+    });
+    
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const runBtn = document.getElementById('optimizeBtn');
+        const originalBtnHtml = runBtn.innerHTML;
+        runBtn.disabled = true;
+        runBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Running...';
+        
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+        
+        // Show results area
+        resultsCard.style.display = 'block';
+        algoStatus.textContent = 'Running';
+        algoStatus.className = 'badge bg-warning';
+        
+        // Initialize chart
+        initializeChart();
+        
+        // Run algorithm
+        fetch('/optimize', {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(async (response) => {
+            let payload;
+            try {
+                payload = await response.json();
+            } catch (e) {
+                throw new Error('Invalid server response');
+            }
+            if (!response.ok) {
+                const msg = (payload && payload.error) ? payload.error : `Request failed (${response.status})`;
+                throw new Error(msg);
+            }
+            return payload;
+        })
+        .then(result => {
+            // Update results
+            document.getElementById('algoUsed').textContent = result.algorithm ?? '-';
+            document.getElementById('execTime').textContent = result.execution_time ?? '-';
+            document.getElementById('bestFitness').textContent = result.best_fitness ?? '-';
+            document.getElementById('constraintViolations').textContent = result.constraint_violations ?? '-';
+            
+            if (fitnessChart && result.fitness_scores) {
+                fitnessChart.data.labels = Array.from({length: result.fitness_scores.length}, (_, i) => `Gen ${i + 1}`);
+                fitnessChart.data.datasets[0].data = result.fitness_scores;
+                fitnessChart.update();
+            }
+            
+            algoStatus.textContent = 'Completed';
+            algoStatus.className = 'badge bg-success';
+            lastOptimization.textContent = new Date().toLocaleString();
+            
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show mt-3';
+            alert.innerHTML = `
+                <i class="bi bi-check-circle me-2"></i>
+                <strong>Optimization Complete!</strong> ${result.message ?? 'Completed successfully.'}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            resultsCard.appendChild(alert);
+        })
+        .catch(error => {
+            console.error(error);
+            algoStatus.textContent = 'Failed';
+            algoStatus.className = 'badge bg-danger';
+            
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            alert.innerHTML = `
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Optimization Failed!</strong> ${error.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            resultsCard.appendChild(alert);
+        })
+        .finally(() => {
+            runBtn.disabled = false;
+            runBtn.innerHTML = originalBtnHtml;
+        });
+    });
+    
+    function initializeChart() {
+        const ctx = document.getElementById('fitnessChart').getContext('2d');
+        fitnessChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Fitness Score',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        reverse: true
+                    }
+                }
+            }
+        });
+    }
+    
+    function runAlgorithm(data) {
+        // Update status
+        algoStatus.textContent = 'Running';
+        algoStatus.className = 'badge bg-warning';
+        
+        // Clear previous results
+        resultsCard.innerHTML = `
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Algorithm Results
+                </h5>
+                <div class="d-flex align-items-center">
+                    <span class="me-2">Status:</span>
+                    <span id="algoStatus" class="badge bg-secondary">Running</span>
+                    <small id="lastOptimization" class="text-light ms-3">—</small>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Algorithm Used:</strong> <span id="algoUsed">-</span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Execution Time:</strong> <span id="execTime">-</span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Best Fitness Score:</strong> <span id="bestFitness" class="text-success">-</span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Constraint Violations:</strong> <span id="constraintViolations">-</span>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <canvas id="fitnessChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        `;
+        
+        // Show results area
+        resultsCard.style.display = 'block';
+        
+        // Initialize chart
+        initializeChart();
+        
+        // Send request to backend
+        fetch('/optimize', {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                // Update results
+                document.getElementById('algoUsed').textContent = result.algorithm;
+                document.getElementById('execTime').textContent = result.execution_time;
+                document.getElementById('bestFitness').textContent = result.best_fitness;
+                document.getElementById('constraintViolations').textContent = result.constraint_violations;
+                
+                // Update chart with fitness scores
+                if (fitnessChart && result.fitness_scores) {
+                    fitnessChart.data.labels = Array.from({length: result.fitness_scores.length}, (_, i) => `Gen ${i + 1}`);
+                    fitnessChart.data.datasets[0].data = result.fitness_scores;
+                    fitnessChart.update();
+                }
+                
+                // Update status
+                algoStatus.textContent = 'Completed';
+                algoStatus.className = 'badge bg-success';
+                lastOptimization.textContent = new Date().toLocaleString();
+                
+                // Show success message
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                alert.innerHTML = `
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong>Optimization Complete!</strong> ${result.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                resultsCard.appendChild(alert);
+                
+            } else {
+                // Show error
+                algoStatus.textContent = 'Failed';
+                algoStatus.className = 'badge bg-danger';
+                
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-danger alert-dismissible fade show mt-3';
+                alert.innerHTML = `
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Optimization Failed!</strong> ${result.error}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                resultsCard.appendChild(alert);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            algoStatus.textContent = 'Failed';
+            algoStatus.className = 'badge bg-danger';
+            
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            alert.innerHTML = `
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Network Error!</strong> Failed to connect to the server. Please try again.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            resultsCard.appendChild(alert);
+        });
+    }
+});
+</script>
+{% endblock %}
