@@ -1,12 +1,11 @@
 # Python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-*.egg-info/
+
+# Env
+.env
 .venv/
 venv/
-.env
 
 # Flask/SQLite
 instance/
@@ -14,6 +13,7 @@ instance/
 *.db
 
 # Logs
+logs/
 *.log
 
 # OS/Editor
@@ -21,3 +21,4 @@ instance/
 Thumbs.db
 .vscode/
 .idea/
+node_modules/
