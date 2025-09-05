@@ -5,6 +5,7 @@ from urllib.parse import urlencode, parse_qs, urlparse
 from flask import current_app, session, url_for, redirect, request
 from models import User, db
 from werkzeug.security import generate_password_hash
+from flask_login import login_user
 import uuid
 
 class OAuthProvider:
@@ -48,7 +49,7 @@ class OAuthProvider:
             'access_type': 'offline',
             'prompt': 'consent'
         }
-        return f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}"
+        return f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}&state={session.get('oauth_state', '')}"
     
     def _get_facebook_auth_url(self):
         """Get Facebook OAuth authorization URL"""
@@ -58,7 +59,7 @@ class OAuthProvider:
             'scope': 'email,public_profile',
             'response_type': 'code'
         }
-        return f"https://www.facebook.com/v18.0/dialog/oauth?{urlencode(params)}"
+        return f"https://www.facebook.com/v18.0/dialog/oauth?{urlencode(params)}&state={session.get('oauth_state', '')}"
     
     def _get_github_auth_url(self):
         """Get GitHub OAuth authorization URL"""
@@ -68,7 +69,7 @@ class OAuthProvider:
             'scope': 'user:email',
             'response_type': 'code'
         }
-        return f"https://github.com/login/oauth/authorize?{urlencode(params)}"
+        return f"https://github.com/login/oauth/authorize?{urlencode(params)}&state={session.get('oauth_state', '')}"
     
     def _get_microsoft_auth_url(self):
         """Get Microsoft OAuth authorization URL"""
@@ -79,7 +80,7 @@ class OAuthProvider:
             'response_type': 'code',
             'response_mode': 'query'
         }
-        return f"{self.config['MICROSOFT_AUTHORITY']}/oauth2/v2.0/authorize?{urlencode(params)}"
+        return f"{self.config['MICROSOFT_AUTHORITY']}/oauth2/v2.0/authorize?{urlencode(params)}&state={session.get('oauth_state', '')}"
     
     def _handle_google_callback(self, code):
         """Handle Google OAuth callback"""
@@ -281,3 +282,37 @@ def get_or_create_user(oauth_data):
     db.session.add(new_user)
     db.session.commit()
     return new_user
+
+def get_or_create_user(oauth_data):
+    """Get existing user or create new one from OAuth data"""
+    # Try to find existing user by OAuth provider ID
+    user = User.query.filter_by(
+        oauth_provider=oauth_data['provider'],
+        oauth_provider_id=oauth_data['provider_id']
+    ).first()
+    
+    if user:
+        # Update user info if needed
+        if oauth_data.get('full_name'):
+            user.full_name = oauth_data['full_name']
+        if oauth_data.get('avatar'):
+            user.avatar_url = oauth_data['avatar']
+        db.session.commit()
+        return user
+    
+    # Try to find by email if no OAuth user found
+    if oauth_data.get('email'):
+        user = User.query.filter_by(email=oauth_data['email']).first()
+        if user:
+            # Link OAuth account to existing user
+            user.oauth_provider = oauth_data['provider']
+            user.oauth_provider_id = oauth_data['provider_id']
+            if oauth_data.get('full_name'):
+                user.full_name = oauth_data['full_name']
+            if oauth_data.get('avatar'):
+                user.avatar_url = oauth_data['avatar']
+            db.session.commit()
+            return user
+    
+    # Create new user
+    return create_oauth_user(oauth_data)

@@ -15,9 +15,22 @@
     --transition: all 0.3s ease;
 }
 
-/* Base Styles */
+/* Global Styles */
 * {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Ensure smooth scrolling works on all browsers */
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
 }
 
 body {

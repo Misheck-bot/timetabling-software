@@ -101,31 +101,22 @@ def init_database():
         
         print("Creating admin user...")
         
-        # Create only the admin user - no sample data
-        admin_user = User(
-            username='admin',
-            email='admin@zuct.edu.zm',
-            password_hash=generate_password_hash('admin123'),
-            role='admin',
-            full_name='System Administrator'
-        )
-        
-        db.session.add(admin_user)
-        db.session.commit()
-        
+        # Database initialized with empty tables
         print("Database initialized successfully!")
-        print("Admin credentials:")
-        print("  Username: admin")
-        print("  Password: admin123")
-        print("  Email: admin@zuct.edu.zm")
-        print("\nLogin and start adding your own courses, rooms, and constraints!")
+        print("\nPlease create an admin account by signing up through the web interface.")
+        print("The first user to register will need to be manually set as admin in the database.")
 
 def reset_database():
-    """Reset the database by dropping all tables"""
-    with app.app_context():
-        print("Dropping all database tables...")
-        db.drop_all()
-        print("Database reset complete.")
+    """Reset the database and recreate empty tables"""
+    print("Resetting database...")
+    
+    # Drop all tables
+    db.drop_all()
+    
+    # Recreate tables
+    db.create_all()
+    
+    print("Database reset complete! All tables are now empty.")
 
 if __name__ == '__main__':
     import sys

@@ -16,11 +16,10 @@
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">
-                <i class="bi bi-calendar-check me-2"></i>
-                ZUCT Timetabling
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('dashboard') }}">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="ExamScheduler Logo" height="40" class="me-2">
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -135,6 +134,28 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- Debug dropdown functionality -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize all dropdowns manually if needed
+        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+        var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+            return new bootstrap.Dropdown(dropdownToggleEl);
+        });
+        
+        // Debug: Log dropdown clicks
+        document.querySelectorAll('.dropdown-toggle').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                console.log('Dropdown clicked:', this.id);
+                var menu = this.nextElementSibling;
+                if (menu) {
+                    console.log('Menu items:', menu.querySelectorAll('.dropdown-item').length);
+                }
+            });
+        });
+    });
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>

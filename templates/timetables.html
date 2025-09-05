@@ -111,9 +111,17 @@
                                         <a href="{{ url_for('view_timetable', timetable_id=timetable.id) }}" class="btn btn-sm btn-outline-primary" title="View">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        <a href="{{ url_for('export_timetable', timetable_id=timetable.id) }}" class="btn btn-sm btn-outline-success" title="Export">
-                                            <i class="bi bi-download"></i>
-                                        </a>
+                                        <div class="btn-group" role="group" aria-label="Export options">
+                                            <a href="{{ url_for('export_timetable', timetable_id=timetable.id, format='csv') }}" class="btn btn-sm btn-outline-success" title="Export as CSV" target="_blank">
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </a>
+                                            <a href="{{ url_for('export_timetable', timetable_id=timetable.id, format='excel') }}" class="btn btn-sm btn-outline-primary" title="Export as Excel" target="_blank">
+                                                <i class="bi bi-file-earmark-excel"></i>
+                                            </a>
+                                            <a href="{{ url_for('export_timetable', timetable_id=timetable.id, format='pdf') }}" class="btn btn-sm btn-outline-danger" title="Export as PDF" target="_blank">
+                                                <i class="bi bi-file-earmark-pdf"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                                 {% endfor %}

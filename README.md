@@ -1,5 +1,11 @@
 # Examination Timetabling System - Research Project
 
+<div align="center">
+  <img src="static/images/logo.svg" alt="ExamScheduler Logo" width="300">
+</div>
+
+A sophisticated examination timetabling system for the Zambia University College of Technology (ZUCT) IT Department. This system uses advanced optimization algorithms including Genetic Algorithm (GA), Simulated Annealing (SA), and a hybrid approach to generate optimal examination schedules.
+
 ## Project Overview
 
 This is a research project implementing and comparing optimization algorithms for solving the examination timetabling problem at the Zambia University College of Technology (ZUCT) IT Department. The project focuses on three main approaches:
@@ -43,7 +49,8 @@ This project contributes to the field of educational timetabling through:
 
 ## OAuth Setup (Optional)
 
-To enable social login with Google, Facebook, GitHub, and Microsoft:
+To enable social login with Goog
+le, Facebook, GitHub, and Microsoft:
 
 1. Copy `oauth_config_example.txt` to `.env`
 2. Get OAuth credentials from the respective platforms:

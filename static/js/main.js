@@ -45,6 +45,9 @@ function setupEventListeners() {
     // Button clicks
     document.addEventListener('click', handleButtonClicks);
     
+    // Smooth scrolling for anchor links
+    document.addEventListener('click', handleSmoothScroll);
+    
     // Window events
     window.addEventListener('resize', handleWindowResize);
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -96,6 +99,73 @@ function handleButtonClicks(event) {
             handleOptimize(button);
             break;
     }
+}
+
+/**
+ * Handle smooth scrolling for anchor links
+ */
+function handleSmoothScroll(event) {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link) return;
+    
+    const href = link.getAttribute('href');
+    if (href === '#' || href === '') return;
+    
+    const target = document.querySelector(href);
+    if (!target) {
+        console.warn('Target element not found:', href);
+        return;
+    }
+    
+    event.preventDefault();
+    
+    // Calculate offset for fixed navbar if present
+    const navbar = document.querySelector('.navbar');
+    const offset = navbar ? navbar.offsetHeight + 20 : 20;
+    
+    // Smooth scroll with offset
+    const targetPosition = target.offsetTop - offset;
+    
+    // Use modern smooth scrolling if supported
+    if ('scrollBehavior' in document.documentElement.style) {
+        window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+        });
+    } else {
+        // Fallback for older browsers
+        smoothScrollTo(targetPosition, 800);
+    }
+    
+    // Update URL hash without jumping
+    setTimeout(() => {
+        history.pushState(null, null, href);
+    }, 100);
+}
+
+/**
+ * Fallback smooth scroll function for older browsers
+ */
+function smoothScrollTo(targetY, duration) {
+    const startY = window.pageYOffset;
+    const distance = targetY - startY;
+    const startTime = performance.now();
+    
+    function step(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function (ease-out)
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        
+        window.scrollTo(0, startY + distance * easeOut);
+        
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        }
+    }
+    
+    requestAnimationFrame(step);
 }
 
 /**
@@ -328,7 +398,7 @@ function showNotification(message, type = 'info', duration = 5000) {
  * Handle export functionality
  */
 function handleExport(button) {
-    const format = button.dataset.format || 'pdf';
+    const format = button.dataset.format || 'csv';
     const id = button.dataset.id;
     
     if (!id) {
@@ -336,12 +406,23 @@ function handleExport(button) {
         return;
     }
     
-    showNotification(`Exporting to ${format.toUpperCase()}...`, 'info');
+    showNotification(`Preparing ${format.toUpperCase()} export...`, 'info');
     
-    // Simulate export process
+    // Create download URL
+    const exportUrl = `/export/${id}?format=${format}`;
+    
+    // Create temporary link and trigger download
+    const link = document.createElement('a');
+    link.href = exportUrl;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Show success message after a short delay
     setTimeout(() => {
-        showNotification(`Successfully exported to ${format.toUpperCase()}`, 'success');
-    }, 2000);
+        showNotification(`${format.toUpperCase()} export initiated successfully`, 'success');
+    }, 500);
 }
 
 /**

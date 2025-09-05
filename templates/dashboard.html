@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert.className = 'alert alert-success alert-dismissible fade show mt-3';
             alert.innerHTML = `
                 <i class="bi bi-check-circle me-2"></i>
-                <strong>Optimization Complete!</strong> ${result.message ?? 'Completed successfully.'}
+                <strong>Optimization Complete!</strong> ${result.message}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             `;
             resultsCard.appendChild(alert);
@@ -442,16 +442,30 @@ document.addEventListener('DOMContentLoaded', function() {
             if (result.success) {
                 // Update results
                 document.getElementById('algoUsed').textContent = result.algorithm;
-                document.getElementById('execTime').textContent = result.execution_time;
-                document.getElementById('bestFitness').textContent = result.best_fitness;
-                document.getElementById('constraintViolations').textContent = result.constraint_violations;
-                
-                // Update chart with fitness scores
-                if (fitnessChart && result.fitness_scores) {
-                    fitnessChart.data.labels = Array.from({length: result.fitness_scores.length}, (_, i) => `Gen ${i + 1}`);
-                    fitnessChart.data.datasets[0].data = result.fitness_scores;
-                    fitnessChart.update();
+                if (result.best_fitness) {
+                    document.getElementById('bestFitness').textContent = result.best_fitness;
                 }
+                if (result.constraint_violations !== undefined) {
+                    document.getElementById('constraintViolations').textContent = result.constraint_violations;
+                }
+                if (result.execution_time) {
+                    document.getElementById('executionTime').textContent = result.execution_time;
+                }
+                if (result.courses_scheduled !== undefined) {
+                    const coursesElement = document.getElementById('coursesScheduled');
+                    if (coursesElement) coursesElement.textContent = result.courses_scheduled;
+                }
+                if (result.rooms_used !== undefined) {
+                    const roomsElement = document.getElementById('roomsUsed');
+                    if (roomsElement) roomsElement.textContent = result.rooms_used;
+                }
+                if (result.time_slots_used !== undefined) {
+                    const slotsElement = document.getElementById('timeSlotsUsed');
+                    if (slotsElement) slotsElement.textContent = result.time_slots_used;
+                }
+                fitnessChart.data.labels = Array.from({length: result.fitness_scores.length}, (_, i) => `Gen ${i + 1}`);
+                fitnessChart.data.datasets[0].data = result.fitness_scores;
+                fitnessChart.update();
                 
                 // Update status
                 algoStatus.textContent = 'Completed';

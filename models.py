@@ -16,10 +16,13 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # OAuth fields
-    oauth_provider = db.Column(db.String(50), nullable=True)  # google, facebook, github, microsoft
+    oauth_provider = db.Column(db.String(50), nullable=True)
     oauth_provider_id = db.Column(db.String(100), nullable=True)
     full_name = db.Column(db.String(200), nullable=True)
     avatar_url = db.Column(db.String(500), nullable=True)
+    
+    # Firebase fields
+    firebase_uid = db.Column(db.String(128), nullable=True, unique=True)
     
     # OAuth provider unique constraint
     __table_args__ = (
@@ -41,6 +44,7 @@ class Course(db.Model):
     students = db.Column(db.Integer, default=0)
     duration = db.Column(db.Integer, default=120)  # in minutes
     department = db.Column(db.String(100), default='IT')
+    program = db.Column(db.String(200), default='General')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships

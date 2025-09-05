@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session, make_response, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -7,6 +7,9 @@ from datetime import datetime, time, date, timedelta
 import json
 import random
 import math
+import csv
+import io
+import tempfile
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
@@ -302,14 +305,242 @@ def view_timetable(timetable_id):
 @app.route('/export/<int:timetable_id>')
 @login_required
 def export_timetable(timetable_id):
-    """Export timetable in various formats"""
     timetable = Timetable.query.get_or_404(timetable_id)
-    # In a real application, you would generate the timetable data here
-    # For now, we'll just return a placeholder message
-    return jsonify({
-        'success': True,
-        'message': f"Export functionality for timetable {timetable.name} not yet implemented."
-    })
+    format_type = request.args.get('format', 'csv')
+    
+    print(f"Export request: timetable_id={timetable_id}, format={format_type}")
+    
+    try:
+        if format_type.lower() == 'csv':
+            return export_to_csv(timetable)
+        elif format_type.lower() == 'excel':
+            return export_to_excel(timetable)
+        elif format_type.lower() == 'pdf':
+            print("Attempting PDF export...")
+            return export_to_pdf(timetable)
+        else:
+            return jsonify({'error': 'Unsupported format. Use csv, excel, or pdf'}), 400
+            
+    except Exception as e:
+        print(f"Export route error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Export failed: {str(e)}'}), 500
+
+def export_to_csv(timetable):
+    """Export timetable to CSV format"""
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    writer.writerow(['Timetable Name', timetable.name])
+    writer.writerow(['Algorithm Used', timetable.algorithm_used])
+    writer.writerow(['Fitness Score', f"{timetable.fitness_score:.2f}"])
+    writer.writerow([])  # Empty row
+    
+    # Write schedule header
+    writer.writerow(['Day', 'Time Slot', 'Course Code', 'Course Name', 'Room', 'Building', 'Students', 'Duration (min)'])
+    
+    # Get timetable entries
+    entries = TimetableEntry.query.filter_by(timetable_id=timetable.id).all()
+    
+    if entries:
+        for entry in entries:
+            writer.writerow([
+                entry.time_slot.day,
+                f"{entry.time_slot.start_time.strftime('%H:%M')} - {entry.time_slot.end_time.strftime('%H:%M')}",
+                entry.course.code,
+                entry.course.name,
+                entry.room.name,
+                entry.room.building,
+                entry.course.students,
+                entry.course.duration
+            ])
+    else:
+        # If no entries, show available data
+        courses = Course.query.all()
+        if courses:
+            writer.writerow(['Available Courses (No schedule generated yet):'])
+            for course in courses:
+                writer.writerow(['N/A', 'N/A', course.code, course.name, 'N/A', 'N/A', course.students, course.duration])
+        else:
+            writer.writerow(['No data available'])
+    
+    # Create response
+    output.seek(0)
+    response = make_response(output.getvalue())
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = f'attachment; filename="timetable_{timetable.id}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+    
+    return response
+
+def export_to_excel(timetable):
+    """Export timetable to Excel format"""
+    try:
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill
+        
+        # Create workbook
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Timetable"
+        
+        # Add timetable information
+        ws['A1'] = 'Timetable Information'
+        ws['A1'].font = Font(bold=True, size=14)
+        ws['A2'] = 'Name:'
+        ws['B2'] = timetable.name
+        ws['A3'] = 'Algorithm:'
+        ws['B3'] = timetable.algorithm_used
+        ws['A4'] = 'Fitness Score:'
+        ws['B4'] = f"{timetable.fitness_score:.2f}"
+        
+        # Schedule header
+        ws['A6'] = 'Examination Schedule'
+        ws['A6'].font = Font(bold=True, size=14)
+        
+        headers = ['Day', 'Time Slot', 'Course Code', 'Course Name', 'Room', 'Building', 'Students', 'Duration (min)']
+        for col, header in enumerate(headers, 1):
+            cell = ws.cell(row=7, column=col, value=header)
+            cell.font = Font(bold=True)
+            cell.fill = PatternFill(start_color="D9E1F2", end_color="D9E1F2", fill_type="solid")
+        
+        # Add schedule data
+        entries = TimetableEntry.query.filter_by(timetable_id=timetable.id).all()
+        row = 8
+        
+        if entries:
+            for entry in entries:
+                ws.cell(row=row, column=1, value=entry.time_slot.day)
+                ws.cell(row=row, column=2, value=f"{entry.time_slot.start_time.strftime('%H:%M')} - {entry.time_slot.end_time.strftime('%H:%M')}")
+                ws.cell(row=row, column=3, value=entry.course.code)
+                ws.cell(row=row, column=4, value=entry.course.name)
+                ws.cell(row=row, column=5, value=entry.room.name)
+                ws.cell(row=row, column=6, value=entry.room.building)
+                ws.cell(row=row, column=7, value=entry.course.students)
+                ws.cell(row=row, column=8, value=entry.course.duration)
+                row += 1
+        else:
+            ws.cell(row=row, column=1, value="No schedule entries available")
+        
+        # Save to temporary file
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx')
+        wb.save(temp_file.name)
+        temp_file.close()
+        
+        return send_file(
+            temp_file.name,
+            as_attachment=True,
+            download_name=f"timetable_{timetable.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        
+    except ImportError:
+        return jsonify({'error': 'Excel export requires openpyxl package. Please install it: pip install openpyxl'}), 500
+
+def export_to_pdf(timetable):
+    """Export timetable to PDF format"""
+    try:
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import A4
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        
+        # Create temporary file
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+        
+        # Create PDF document
+        doc = SimpleDocTemplate(temp_file.name, pagesize=A4)
+        styles = getSampleStyleSheet()
+        story = []
+        
+        # Title
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=18,
+            spaceAfter=30,
+            alignment=1  # Center alignment
+        )
+        story.append(Paragraph("Examination Timetable", title_style))
+        
+        # Timetable information
+        info_data = [
+            ['Timetable Name:', timetable.name],
+            ['Algorithm Used:', timetable.algorithm_used],
+            ['Fitness Score:', f"{timetable.fitness_score:.2f}"]
+        ]
+        
+        info_table = Table(info_data, colWidths=[2*inch, 4*inch])
+        info_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        
+        story.append(info_table)
+        story.append(Spacer(1, 20))
+        
+        # Schedule table
+        schedule_data = [['Day', 'Time', 'Course', 'Room', 'Building', 'Students', 'Duration']]
+        
+        entries = TimetableEntry.query.filter_by(timetable_id=timetable.id).all()
+        
+        if entries:
+            for entry in entries:
+                schedule_data.append([
+                    entry.time_slot.day,
+                    f"{entry.time_slot.start_time.strftime('%H:%M')}-{entry.time_slot.end_time.strftime('%H:%M')}",
+                    f"{entry.course.code}\n{entry.course.name}",
+                    entry.room.name,
+                    entry.room.building,
+                    str(entry.course.students),
+                    f"{entry.course.duration}m"
+                ])
+        else:
+            schedule_data.append(["No schedule entries available", "", "", "", "", "", ""])
+        
+        schedule_table = Table(schedule_data, colWidths=[0.8*inch, 1*inch, 1.8*inch, 0.8*inch, 1*inch, 0.6*inch, 0.6*inch])
+        schedule_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        
+        story.append(Paragraph("Examination Schedule", styles['Heading2']))
+        story.append(Spacer(1, 12))
+        story.append(schedule_table)
+        
+        # Build PDF
+        doc.build(story)
+        temp_file.close()
+        
+        return send_file(
+            temp_file.name,
+            as_attachment=True,
+            download_name=f"timetable_{timetable.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+            mimetype='application/pdf'
+        )
+        
+    except ImportError as e:
+        print(f"PDF Export Error - ImportError: {e}")
+        return jsonify({'error': 'PDF export requires reportlab package. Please install it: pip install reportlab'}), 500
+    except Exception as e:
+        print(f"PDF Export Error - General Exception: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'PDF export failed: {str(e)}'}), 500
 
 @app.route('/profile')
 @login_required
@@ -438,16 +669,39 @@ def optimize_timetable():
             current_fitness = 1000 * (1 - improvement + noise)
             fitness_scores.append(max(current_fitness, 200))
         
+        # Count actual courses and time slots used
+        courses_scheduled = len(set(entry['course_id'] for entry in timetable_entries))
+        time_slots_used = len(set(entry['time_slot_id'] for entry in timetable_entries))
+        rooms_used = len(set(entry['room_id'] for entry in timetable_entries))
+        
+        # Generate dynamic message based on actual results
+        algorithm_name = {
+            'genetic': 'Genetic Algorithm',
+            'simulated_annealing': 'Simulated Annealing',
+            'hybrid': 'Hybrid GA+SA'
+        }.get(algorithm, algorithm.title())
+        
+        # Create detailed message with real statistics
+        message = f"Generated {courses_scheduled} course examinations using {algorithm_name}. "
+        message += f"Utilized {rooms_used} examination rooms across {time_slots_used} time slots. "
+        message += f"Fitness score: {fitness_score:.1f}, Violations: {violations}. "
+        message += f"Execution time: {execution_time:.2f} seconds."
+        
         return jsonify({
             'success': True,
             'algorithm': algorithm,
+            'algorithm_name': algorithm_name,
             'execution_time': f"{execution_time:.2f}s",
             'best_fitness': f"{fitness_score:.1f}",
             'constraint_violations': violations,
             'fitness_scores': fitness_scores,
             'generations_completed': len(fitness_scores),
             'timetable_id': timetable.id,
-            'message': f"Successfully generated timetable using {algorithm} with current-date time slots. {len(timetable_entries)} exams scheduled."
+            'courses_scheduled': courses_scheduled,
+            'rooms_used': rooms_used,
+            'time_slots_used': time_slots_used,
+            'total_entries': len(timetable_entries),
+            'message': message
         })
         
     except Exception as e:
@@ -526,7 +780,9 @@ def genetic_algorithm_timetabling(courses, rooms, time_slots, population_size, g
             'time_slot_id': time_slot_id
         })
     
-    return entries, best_fitness, best_fitness
+    # Calculate proper fitness score (lower violations = higher fitness)
+    fitness_score = max(1000 - (best_fitness * 100), 100)
+    return entries, fitness_score, best_fitness
 
 def simulated_annealing_timetabling(courses, rooms, time_slots, temperature, cooling_rate, iterations):
     """Basic simulated annealing for timetable generation"""
@@ -585,7 +841,9 @@ def simulated_annealing_timetabling(courses, rooms, time_slots, temperature, coo
             'time_slot_id': time_slot_id
         })
     
-    return entries, best_fitness, best_fitness
+    # Calculate proper fitness score (lower violations = higher fitness)
+    fitness_score = max(1000 - (best_fitness * 100), 100)
+    return entries, fitness_score, best_fitness
 
 def hybrid_algorithm_timetabling(courses, rooms, time_slots, population_size, generations, mutation_rate, temperature, cooling_rate):
     """Hybrid approach combining GA and SA"""
@@ -599,8 +857,8 @@ def hybrid_algorithm_timetabling(courses, rooms, time_slots, population_size, ge
         courses, rooms, time_slots, temperature, cooling_rate, generations // 2
     )
     
-    # Return the better solution
-    if ga_fitness <= sa_fitness:
+    # Return the better solution (higher fitness score is better)
+    if ga_fitness >= sa_fitness:
         return ga_entries, ga_fitness, ga_violations
     else:
         return sa_entries, sa_fitness, sa_violations
@@ -609,17 +867,7 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
         
-        # Create admin user if it doesn't exist
-        if not User.query.filter_by(email='admin@zuct.edu.zm').first():
-            admin_user = User(
-                username='admin',
-                email='admin@zuct.edu.zm',
-                password_hash=generate_password_hash('admin123'),
-                role='admin',
-                full_name='System Administrator'
-            )
-            db.session.add(admin_user)
-            db.session.commit()
-            print("Admin user created!")
-    
+        # Database initialized with empty tables
+        print("Database tables created successfully!")
+        print("Please register your first user through the web interface.")
     app.run(debug=True, host='0.0.0.0', port=5000)

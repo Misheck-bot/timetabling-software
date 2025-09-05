@@ -18,9 +18,17 @@
                     <a href="{{ url_for('view_timetables') }}" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left me-2"></i>Back to Timetables
                     </a>
-                    <button class="btn btn-outline-primary" onclick="exportTimetable({{ timetable.id }})">
-                        <i class="bi bi-download me-2"></i>Export
-                    </button>
+                    <div class="btn-group" role="group" aria-label="Export options">
+                        <a href="{{ url_for('export_timetable', timetable_id=timetable.id, format='csv') }}" class="btn btn-outline-success" title="Export as CSV" target="_blank">
+                            <i class="bi bi-file-earmark-text me-2"></i>CSV
+                        </a>
+                        <a href="{{ url_for('export_timetable', timetable_id=timetable.id, format='excel') }}" class="btn btn-outline-primary" title="Export as Excel" target="_blank">
+                            <i class="bi bi-file-earmark-excel me-2"></i>Excel
+                        </a>
+                        <a href="{{ url_for('export_timetable', timetable_id=timetable.id, format='pdf') }}" class="btn btn-outline-danger" title="Export as PDF" target="_blank">
+                            <i class="bi bi-file-earmark-pdf me-2"></i>PDF
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -177,9 +185,7 @@
 
 {% block extra_js %}
 <script>
-function exportTimetable(timetableId) {
-    // In a real application, you would generate and download an export file
-    alert('Export functionality will be implemented in the next version.');
-}
+// Export functionality is now handled through direct links in the dropdown menu
+// No additional JavaScript needed for basic export functionality
 </script>
 {% endblock %}
